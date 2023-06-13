@@ -1,0 +1,28 @@
+import torch
+import torchvision
+from torchvision.transforms import transforms
+from PIL import Image
+
+# Load the pretrained HRNet model
+model = torchvision.models.detection.hrnet_hrnetv2_w48(pretrained=True)
+model.eval()
+
+# Preprocess the image
+image_path = 'path_to_your_image.jpg'
+transform = transforms.Compose([transforms.ToTensor()])
+image = transform(Image.open(image_path).convert("RGB"))
+
+# Make predictions
+with torch.no_grad():
+    prediction = model([image])
+
+# Process the prediction results
+boxes = prediction[0]['boxes']
+scores = prediction[0]['scores']
+labels = prediction[0]['labels']
+
+# Display the bounding boxes and labels
+for box, score, label in zip(boxes, scores, labels):
+    if score > 0.5:  # Filter out low-confidence predictions
+        print(f"Label: {label}, Score: {score}")
+        print(f"Bounding Box: {box}")
