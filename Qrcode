@@ -1,0 +1,56 @@
+#include <iostream>
+#include <zbar.h>
+#include <opencv2/opencv.hpp>
+
+using namespace std;
+using namespace cv;
+using namespace zbar;
+
+int main()
+{
+    // Open the video capture device
+    VideoCapture cap(0);
+
+    if (!cap.isOpened()) {
+        cerr << "Failed to open the camera!" << endl;
+        return -1;
+    }
+
+   
+    ImageScanner scanner;
+    scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 1);
+
+
+    while (true) {
+        Mat frame;
+        cap.read(frame);
+
+        // Convert frame to grayscale
+        Mat gray;
+        cvtColor(frame, gray, COLOR_BGR2GRAY);
+
+        // Wrap image data in a ZBar image
+        Image image(frame.cols, frame.rows, "Y800", gray.data, frame.cols * frame.rows);
+
+        // Scan for QR codes
+        int num_symbols = scanner.scan(image);
+
+        // Process the symbols found
+        for (Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol) {
+            cout << "Decoded QR code: " << symbol->get_data() << endl;
+        }
+
+        // Display the frame
+        imshow("QR Code Scanner", frame);
+
+        // Exit if the 'q' key is pressed
+        if (waitKey(1) == 'q')
+            break;
+    }
+
+    // Release the camera and windows
+    cap.release();
+    destroyAllWindows();
+
+    return 0;
+}
