@@ -1,0 +1,35 @@
+#include <iostream>
+#include <opencv2/opencv.hpp>
+
+int main() {
+    // Open the video capture device
+    cv::VideoCapture cap(0);
+
+    if (!cap.isOpened()) {
+        std::cerr << "Failed to open the camera!" << std::endl;
+        return -1;
+    }
+
+    // Set the resolution of the captured image
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+
+    cv::Mat frame;
+    cap.read(frame);
+
+    if (frame.empty()) {
+        std::cerr << "Failed to capture frame from the camera!" << std::endl;
+        return -1;
+    }
+
+    // Save the captured image
+    std::string outputFileName = "captured_image.jpg";
+    cv::imwrite(outputFileName, frame);
+
+    std::cout << "Image captured and saved as " << outputFileName << std::endl;
+
+    // Release the camera
+    cap.release();
+
+    return 0;
+}
